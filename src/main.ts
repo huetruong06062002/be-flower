@@ -47,7 +47,7 @@ async function bootstrap() {
 
   //config swagger
   const config = new DocumentBuilder()
-    .setTitle('Nestjs Backend TopCV Document')
+    .setTitle('Nestjs Backend Flower-Seller Document')
     .setDescription('All Modules APIs')
     .setVersion('1.0')
     .addBearerAuth(
@@ -62,7 +62,9 @@ async function bootstrap() {
     .addSecurityRequirements('token')
     .build();
   const document = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document, {
+
+  //Lưu accesstoken  khi refresh
+  SwaggerModule.setup('swagger', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
     }
