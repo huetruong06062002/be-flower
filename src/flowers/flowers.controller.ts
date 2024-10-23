@@ -71,6 +71,7 @@ export class FlowersController {
     return this.flowersService.getFlowerById(id);
   }
 
+  @UseGuards(AuthGuard('jwt')) 
   @Put('/:id')
   @UseInterceptors(FileInterceptor('file', multerOptions)) // Sử dụng Multer để xử lý file upload
   @ApiOperation({ summary: 'Update a flower' })
@@ -107,6 +108,8 @@ export class FlowersController {
     return this.flowersService.updateFlower(id, flowerDto, file);
   }
 
+
+  @UseGuards(AuthGuard('jwt')) 
   @Delete('/:id')
   async deleteFlower(@Param('id') id: string, @Req() req) {
     return this.flowersService.deleteFlower(id, req);

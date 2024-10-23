@@ -17,7 +17,7 @@ export class Order {
   @Prop({ required: true })
   totalPrice: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true , default: Date.now })
   orderDate: Date;
 
   @Prop({ required: true })
