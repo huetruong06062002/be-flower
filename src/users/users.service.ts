@@ -4,7 +4,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schema/user.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-
 import * as bycrypt from 'bcryptjs';
 
 @Injectable()
@@ -21,21 +20,32 @@ export class UsersService {
 
   // Register a new user
   async register(registerUserDTO: CreateUserDto) {
-    const { name, email, password, phoneNumber, address } = registerUserDTO;
+    const { name, email, password, phoneNumber, address, roleId } = registerUserDTO;
 
-    // Check if the email already exists
+    // Kiểm tra xem email đã tồn tại chưa
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
       throw new BadRequestException(`Email: ${email} đã tồn tại trên hệ thống. Vui lòng sử dụng email khác.`);
     }
 
-    const hashPassword = await bycrypt.hash(password, 10);
-    const newRegister = await this.userModel.create({
-     ...registerUserDTO,
-     password: hashPassword,
+    // Hash mật khẩu
+    const hashedPassword = await bycrypt.hash(password, 10)
+
+    console.log("hashedPassword", hashedPassword)
+    // Tạo đối tượng user mới với mật khẩu đã được hash
+    const newUser = new this.userModel({
+      name,
+      email,
+      password: hashedPassword, // Lưu mật khẩu đã hash
+      phoneNumber,
+      address,
+      roleId,
     });
 
-    return newRegister;
+    // Lưu user mới vào cơ sở dữ liệu
+    await newUser.save();
+
+    return newUser;
   }
 
   async create(createUserDto: CreateUserDto) {

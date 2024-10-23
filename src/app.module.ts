@@ -34,7 +34,7 @@ import mongoose from 'mongoose';
       isGlobal: true
     }),
     UsersModule, 
-    AuthModule, DatabaseModule, RolesModule, FlowersModule, DeliveryModule, PaymentsModule, ReviewsModule, NotificationsModule, OrdersModule
+    AuthModule, DatabaseModule,  RolesModule, FlowersModule, DeliveryModule, PaymentsModule, ReviewsModule, NotificationsModule, OrdersModule
   ],
   controllers: [AppController],
   providers: [AppService],
