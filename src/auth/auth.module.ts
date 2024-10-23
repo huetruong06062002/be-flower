@@ -9,6 +9,8 @@ import { UserSchema } from 'src/users/schema/user.schema';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { RolesModule } from 'src/roles/roles.module';
+import { JwtStrategy } from './jwt.strategy';
+
 
 @Module({
   imports: [
@@ -30,7 +32,7 @@ import { RolesModule } from 'src/roles/roles.module';
   
   ],
   controllers: [AuthController],
-  providers: [AuthService],
-  exports: [AuthService],
+  providers: [AuthService, JwtStrategy],
+  exports: [ AuthService, PassportModule],
 })
 export class AuthModule {}
