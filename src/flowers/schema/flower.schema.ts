@@ -25,6 +25,9 @@ export class Flower {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   sellerId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ required: true })
+  imageUrl: string; // Đường dẫn URL đến ảnh
 }
 
 export const FlowerSchema = SchemaFactory.createForClass(Flower);

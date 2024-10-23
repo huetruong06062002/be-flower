@@ -4,12 +4,14 @@ import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 import * as process from "process";
+import * as express from 'express';
 
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { ConfigService } from '@nestjs/config';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -17,7 +19,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const reflector = app.get(Reflector);
 
-
+  app.use('/public', express.static(join(__dirname, '..', 'public')));
 
   app.setViewEngine('ejs');
   app.useGlobalPipes(new ValidationPipe({
