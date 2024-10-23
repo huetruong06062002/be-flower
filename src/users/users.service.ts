@@ -4,7 +4,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schema/user.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import { genSaltSync, hashSync, compareSync } from 'bcryptjs';
+
+import * as bycrypt from 'bcryptjs';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -15,11 +17,6 @@ export class UsersService {
 
   ) {}
 
-    // Password hashing utility
-    hashPassword = (password: string): string => {
-      const salt = genSaltSync(10);
-      return hashSync(password, salt);
-    };
 
 
   // Register a new user
@@ -32,7 +29,7 @@ export class UsersService {
       throw new BadRequestException(`Email: ${email} đã tồn tại trên hệ thống. Vui lòng sử dụng email khác.`);
     }
 
-    const hashPassword = this.hashPassword(password);
+    const hashPassword = await bycrypt.hash(password, 10);
     const newRegister = await this.userModel.create({
      ...registerUserDTO,
      password: hashPassword,
