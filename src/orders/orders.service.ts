@@ -5,13 +5,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Order, OrderDocument } from './schema/order.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { Flower, FlowerDocument } from 'src/flowers/schema/flower.schema';
+import { NotificationsGateway } from 'src/notifications/notifications.gateway';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectModel(Order.name) private orderModel: SoftDeleteModel<OrderDocument>,
     @InjectModel(Flower.name) private flowerModel: SoftDeleteModel<FlowerDocument>,
-
+    private readonly notificationsGateway: NotificationsGateway, // Inject NotificationsGateway
+    private readonly notificationsService: NotificationsService, 
 
    
 
@@ -39,7 +42,14 @@ export class OrdersService {
     await order.save();
     flower.quantity -= quantity; // Cập nhật số lượng còn lại
     await flower.save();
+    
+
+      // Tạo thông báo cho người mua
+      const message = `Đơn hàng của bạn đang được tạo với tổng tiền là: ${totalPrice}`;
+      await this.notificationsService.createNotification(order.buyerId.toString(), message);
   
+      // Gửi thông báo qua WebSocket
+      await this.notificationsGateway.sendNotification(order.buyerId.toString(), message);
     return order;
   }
 
@@ -68,8 +78,17 @@ export class OrdersService {
     if (updateOrderDto.status) {
       order.status = updateOrderDto.status;
     }
+
   
     await order.save();
+
+     // Tạo thông báo cho người mua
+     const message = `Đơn hàng của bạn đang được: ${updateOrderDto.status}`;
+     await this.notificationsService.createNotification(order.buyerId.toString(), message);
+ 
+     // Gửi thông báo qua WebSocket
+     await this.notificationsGateway.sendNotification(order.buyerId.toString(), message);
+ 
     return order;
   }
 

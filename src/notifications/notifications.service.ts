@@ -1,26 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Notification, NotificationDocument } from './schema/notification.schema';
+import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 
 @Injectable()
 export class NotificationsService {
-  create(createNotificationDto: CreateNotificationDto) {
-    return 'This action adds a new notification';
+  constructor(
+    @InjectModel(Notification.name) private notificationModel: SoftDeleteModel<NotificationDocument>,
+  ) {}
+
+  // Tạo thông báo mới
+  async createNotification(userId: string, message: string): Promise<Notification> {
+    const newNotification = new this.notificationModel({
+      userId,
+      message,
+      createdAt: new Date(),
+    });
+    return newNotification.save();
   }
 
-  findAll() {
-    return `This action returns all notifications`;
+  // Lấy danh sách thông báo chưa đọc của một người dùng
+  async getUserNotifications(userId: string): Promise<Notification[]> {
+    return this.notificationModel.find({ userId, isRead: false }).exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} notification`;
-  }
-
-  update(id: number, updateNotificationDto: UpdateNotificationDto) {
-    return `This action updates a #${id} notification`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} notification`;
+  // Đánh dấu thông báo đã đọc
+  async markAsRead(notificationId: string): Promise<Notification> {
+    return this.notificationModel.findByIdAndUpdate(
+      notificationId,
+      { isRead: true },
+      { new: true },
+    );
   }
 }

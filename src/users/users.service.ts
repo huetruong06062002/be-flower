@@ -10,10 +10,6 @@ import * as bycrypt from 'bcryptjs';
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>,
-
-
-   
-
   ) {}
 
 
