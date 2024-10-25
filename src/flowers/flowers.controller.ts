@@ -71,31 +71,30 @@ export class FlowersController {
     return this.flowersService.getFlowerById(id);
   }
 
-  @UseGuards(AuthGuard('jwt')) 
+  @UseGuards(AuthGuard('jwt'))
   @Put('/:id')
   @UseInterceptors(FileInterceptor('file', multerOptions)) // Sử dụng Multer để xử lý file upload
   @ApiOperation({ summary: 'Update a flower' })
-  @ApiResponse({ status: 201, description: 'Flower updated successfully.' })
+  @ApiResponse({ status: 200, description: 'Flower updated successfully.' }) // Đổi về 200 thay vì 201
   @ApiResponse({ status: 400, description: 'Bad request.' })
   @ApiConsumes('multipart/form-data') // Đánh dấu là multipart/form-data
   @ApiBody({
     description: 'Flower information along with an image file',
-    type: CreateFlowerDto,
+    type: UpdateFlowerDto,
     required: true,
-    // Định nghĩa phần file
     schema: {
       type: 'object',
       properties: {
-        // Các thuộc tính từ CreateFlowerDto
         name: { type: 'string' },
         type: { type: 'string' },
         quantity: { type: 'number' },
         price: { type: 'number' },
         condition: { type: 'string' },
-        description: { type: 'string', nullable: true }, // nullable nếu không bắt buộc
+        description: { type: 'string', nullable: true }, // Đánh dấu là nullable
         file: {
           type: 'string',
           format: 'binary',
+          nullable: true, // Đánh dấu là nullable
         },
       },
     },

@@ -18,6 +18,7 @@ export class FlowersService {
       ...flowerDto,
       imageUrl: `public/flower/${file.filename}`, // Lưu đường dẫn hình ảnh
       sellerId, 
+      reviewId: flowerDto.reviewId || []
     };
 
     const newFlower = new this.flowerModel(flowerData);
@@ -29,6 +30,7 @@ export class FlowersService {
       const flowers = await this.flowerModel
         .find()
         .populate('sellerId', 'name') // Lấy thông tin tên người bán từ User
+        .populate('reviewId') // Lấy thông tin review từ Review
         .exec();
   
       // Điều chỉnh imageUrl
@@ -52,7 +54,7 @@ export class FlowersService {
     return null;
   }
 
-  // Cập nhật thông tin hoa kèm theo ảnh nếu cóm
+
   async updateFlower(id: string, flowerDto: UpdateFlowerDto, file?: Express.Multer.File) {
     const existingFlower = await this.flowerModel.findById(id).exec();
 
@@ -88,6 +90,11 @@ export class FlowersService {
     existingFlower.price = flowerDto.price || existingFlower.price;
     existingFlower.condition = flowerDto.condition || existingFlower.condition;
     existingFlower.description = flowerDto.description || existingFlower.description;
+
+      // Cập nhật reviewId nếu có
+    if (flowerDto.reviewId) {
+      existingFlower.reviewId = flowerDto.reviewId;
+    }
 
     // Lưu lại thay đổi vào cơ sở dữ liệu
     await existingFlower.save();

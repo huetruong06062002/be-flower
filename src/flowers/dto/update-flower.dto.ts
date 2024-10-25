@@ -2,6 +2,7 @@ import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreateFlowerDto } from './create-flower.dto';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
+import mongoose from 'mongoose';
 
 export class UpdateFlowerDto {
   @IsString()
@@ -14,12 +15,12 @@ export class UpdateFlowerDto {
 
   @IsNumber()
   @IsNotEmpty()
-  @Type(() => Number) 
+  @Type(() => Number)
   quantity: number; // Số lượng hoa
 
   @IsNumber()
   @IsNotEmpty()
-  @Type(() => Number) 
+  @Type(() => Number)
   price: number; // Giá hoa
 
   @IsString()
@@ -30,7 +31,16 @@ export class UpdateFlowerDto {
   @IsOptional()
   description?: string; // Mô tả hoa
 
-  @ApiProperty({ type: 'string', format: 'binary', description: 'Hình ảnh của hoa' })
-  file: any;
+
+  // Optional file property
+  @IsOptional()
+  @ApiProperty({ type: 'string', format: 'binary', description: 'Hình ảnh của hoa', required: false,  nullable: true  })
+  file?: any; // Hình ảnh của hoa, không bắt buộc
+
+
+  // Thêm reviewId dưới dạng mảng ObjectId, tùy chọn
+  @IsOptional()
+  @ApiProperty({ type: [String], description: 'Danh sách review liên quan' })
+  reviewId?: mongoose.Schema.Types.ObjectId[];
 
 }

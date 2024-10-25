@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import mongoose from 'mongoose';
 
 export class CreateFlowerDto {
   @IsString()
@@ -29,7 +30,12 @@ export class CreateFlowerDto {
   @IsOptional()
   description?: string; // Mô tả hoa
 
-  @ApiProperty({ type: 'string', format: 'binary', description: 'Hình ảnh của hoa' })
+  @ApiProperty({ type: 'string', format: 'binary', description: 'Hình ảnh của hoa', nullable: true  })
   file: any;
+
+   // Thêm reviewId dưới dạng mảng ObjectId, tùy chọn
+   @IsOptional()
+   @ApiProperty({ type: [String], description: 'Danh sách review liên quan' })
+   reviewId?: mongoose.Schema.Types.ObjectId[];
 
 }

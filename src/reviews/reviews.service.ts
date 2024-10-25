@@ -22,7 +22,7 @@ export class ReviewsService {
     return this.reviewModel
       .find()
       .populate('userId') // Populate với thông tin của User
-      .populate('flowerId') // Populate với thông tin của Flower
+      // .populate('flowerId') // Populate với thông tin của Flower
       .exec();
   }
 
@@ -30,7 +30,7 @@ export class ReviewsService {
     const review = await this.reviewModel
       .findById(id)
       .populate('userId')
-      .populate('flowerId')
+      // .populate('flowerId')
       .exec();
 
     if (!review) {
