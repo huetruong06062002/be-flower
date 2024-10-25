@@ -29,6 +29,9 @@ export class Flower {
   @Prop({ required: true })
   imageUrl: string; // Đường dẫn URL đến ảnh
 
+  @Prop()
+  mediumRating?: number;
+
   // Thêm mảng chứa các review liên quan
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }] })
   reviewId: mongoose.Schema.Types.ObjectId[];

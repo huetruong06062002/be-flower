@@ -1,7 +1,7 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreateFlowerDto } from './create-flower.dto';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import mongoose from 'mongoose';
 
 export class UpdateFlowerDto {
@@ -23,6 +23,13 @@ export class UpdateFlowerDto {
   @Type(() => Number)
   price: number; // Giá hoa
 
+  // Ẩn mediumRating khỏi Swagger khi cập nhật
+  @ApiHideProperty()
+  @IsNumber()
+  @IsOptional()
+  @Transform(({ value }) => value ?? 0)
+  mediumRating?: number; // Đánh giá trung bình, không bắt buộc
+
   @IsString()
   @IsNotEmpty()
   condition: string; // Tình trạng hoa
@@ -34,7 +41,7 @@ export class UpdateFlowerDto {
 
   // Optional file property
   @IsOptional()
-  @ApiProperty({ type: 'string', format: 'binary', description: 'Hình ảnh của hoa', required: false,  nullable: true  })
+  @ApiProperty({ type: 'string', format: 'binary', description: 'Hình ảnh của hoa', required: false, nullable: true })
   file?: any; // Hình ảnh của hoa, không bắt buộc
 
 
