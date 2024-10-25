@@ -1,26 +1,54 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { Payment, PaymentDocument } from './schema/payment.schema';
+import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
+
 
 @Injectable()
 export class PaymentsService {
-  create(createPaymentDto: CreatePaymentDto) {
-    return 'This action adds a new payment';
+  constructor(
+    @InjectModel(Payment.name) private paymentModel: SoftDeleteModel<PaymentDocument>,
+  ) {}
+
+  async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
+    const createdPayment = new this.paymentModel(createPaymentDto);
+    return createdPayment.save();
   }
 
-  findAll() {
-    return `This action returns all payments`;
+  async findAll(): Promise<Payment[]> {
+    return this.paymentModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} payment`;
+  async findOne(id: string): Promise<Payment> {
+    const payment = await this.paymentModel.findById(id).exec();
+    if (!payment) {
+      throw new NotFoundException(`Payment with ID ${id} not found`);
+    }
+    return payment;
   }
 
-  update(id: number, updatePaymentDto: UpdatePaymentDto) {
-    return `This action updates a #${id} payment`;
+  async update(id: string, updatePaymentDto: UpdatePaymentDto): Promise<Payment> {
+    const updatedPayment = await this.paymentModel
+      .findByIdAndUpdate(id, updatePaymentDto, { new: true })
+      .exec();
+
+    if (!updatedPayment) {
+      throw new NotFoundException(`Payment with ID ${id} not found`);
+    }
+
+    return updatedPayment;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} payment`;
+  async remove(id: string): Promise<Payment> {
+    const payment = await this.paymentModel.findByIdAndRemove(id).exec();
+
+    if (!payment) {
+      throw new NotFoundException(`Payment with ID ${id} not found`);
+    }
+
+    return payment;
   }
 }
