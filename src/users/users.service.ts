@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -55,19 +55,46 @@ export class UsersService {
     };
   }
 
-  findAll() {
-    return `This action returns all users`;
+   // Lấy danh sách tất cả các user chưa bị xóa mềm
+   async findAll() {
+    return await this.userModel.find({ isDeleted: false }).exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+ 
+  // Tìm user theo ID, chỉ trả về nếu chưa bị xóa mềm
+  async findOne(id: string) {
+    const user = await this.userModel.findOne({ _id: id}).exec();
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found or has been deleted`);
+    }
+    return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  // Cập nhật thông tin user
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const updatedUser = await this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true }).exec();
+    if (!updatedUser) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return updatedUser;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+   // Xóa mềm (soft delete) user theo ID
+   async remove(id: string) {
+    const user = await this.userModel.softDelete({ _id: id });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return { message: `User with ID ${id} has been soft deleted` };
+  }
+
+
+   // Khôi phục user đã xóa mềm
+   async restore(id: string) {
+    const user = await this.userModel.restore({ _id: id });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found or is not soft deleted`);
+    }
+    return { message: `User with ID ${id} has been restored` };
   }
 }

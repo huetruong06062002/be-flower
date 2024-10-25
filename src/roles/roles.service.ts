@@ -16,8 +16,9 @@ export class RolesService {
   ) {}
 
 
-  create(createRoleDto: CreateRoleDto) {
-    return 'This action adds a new role';
+  async create(createRoleDto: CreateRoleDto): Promise<Role> {
+    const createdRole = new this.roleModel(createRoleDto);
+    return createdRole.save();
   }
 
   findAll() {
