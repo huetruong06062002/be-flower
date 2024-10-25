@@ -19,11 +19,11 @@ export class PaymentsService {
   }
 
   async findAll(): Promise<Payment[]> {
-    return this.paymentModel.find().exec();
+    return this.paymentModel.find().populate('orderId') .exec();
   }
 
   async findOne(id: string): Promise<Payment> {
-    const payment = await this.paymentModel.findById(id).exec();
+    const payment = await this.paymentModel.findById(id).populate('orderId').exec();
     if (!payment) {
       throw new NotFoundException(`Payment with ID ${id} not found`);
     }
