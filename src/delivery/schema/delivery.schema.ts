@@ -16,6 +16,9 @@ export class Delivery {
 
   @Prop({ required: true })
   deliveryStatus: string;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  deliveryPersonId: mongoose.Schema.Types.ObjectId;
 }
 
 export const DeliverySchema = SchemaFactory.createForClass(Delivery);

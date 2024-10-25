@@ -57,7 +57,7 @@ export class UsersService {
 
    // Lấy danh sách tất cả các user chưa bị xóa mềm
    async findAll() {
-    return await this.userModel.find({ isDeleted: false }).exec();
+    return await this.userModel.find({ isDeleted: false }).select("-password").exec();
   }
 
  
