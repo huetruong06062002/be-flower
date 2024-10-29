@@ -72,7 +72,8 @@ export class UsersService {
 
   // Cập nhật thông tin user
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const updatedUser = await this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true }).exec();
+    const hashedPassword = await bycrypt.hash(updateUserDto.password, 10)
+    const updatedUser = await this.userModel.findByIdAndUpdate(id, {...updateUserDto, password:hashedPassword }, { new: true }).exec();
     if (!updatedUser) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
