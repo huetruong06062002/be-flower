@@ -42,7 +42,7 @@ export class CreateFlowerDto {
 
   // Thêm reviewId dưới dạng mảng ObjectId, tùy chọn
   @IsOptional()
-  @ApiProperty({ type: [String], description: 'Danh sách review liên quan' })
+  @ApiProperty({ type: [String], description: 'Danh sách review liên quan' , default: []})
   reviewId?: mongoose.Schema.Types.ObjectId[];
 
 }

@@ -34,7 +34,7 @@ export class Flower {
 
   // Thêm mảng chứa các review liên quan
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }] })
-  reviewId: mongoose.Schema.Types.ObjectId[];
+  reviewId?: mongoose.Schema.Types.ObjectId[];
 }
 
 export const FlowerSchema = SchemaFactory.createForClass(Flower);
