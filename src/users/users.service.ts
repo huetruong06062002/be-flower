@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto, UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schema/user.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
@@ -72,12 +72,31 @@ export class UsersService {
 
   // Cập nhật thông tin user
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const hashedPassword = await bycrypt.hash(updateUserDto.password, 10)
-    const updatedUser = await this.userModel.findByIdAndUpdate(id, {...updateUserDto, password:hashedPassword }, { new: true }).exec();
+    const updatedUser = await this.userModel.findByIdAndUpdate(id, {...updateUserDto}, { new: true }).exec();
     if (!updatedUser) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
     return updatedUser;
+  }
+
+  async changePassword(id: string, changePasswordDto: ChangePasswordDto) {
+    const { currentPassword, newPassword } = changePasswordDto;
+    const user = await this.userModel.findById(id).exec();
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    const isPasswordValid = await bycrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const hashedNewPassword = await bycrypt.hash(newPassword, 10);
+    user.password = hashedNewPassword;
+    await user.save();
+
+    return { message: `Password for User with ID ${id} has been changed successfully` };
   }
 
    // Xóa mềm (soft delete) user theo ID
