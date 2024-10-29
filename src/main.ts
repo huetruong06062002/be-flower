@@ -12,12 +12,15 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
+import { Server } from 'socket.io';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const configService = app.get(ConfigService);
   const reflector = app.get(Reflector);
+  const server = app.getHttpServer();
+  const io = new Server(server);
 
   app.use('/public', express.static(join(__dirname, '..', 'public')));
 
@@ -70,6 +73,12 @@ async function bootstrap() {
     swaggerOptions: {
       persistAuthorization: true,
     }
+  });
+
+  io.on('connection', (socket) => {
+    socket.on('send_message', (message) => {
+      socket.broadcast.emit('receive_message', message); // Phát tin nhắn đến tất cả client
+    });
   });
 
   await app.listen(configService.get<string>("PORT") || 8000, "0.0.0.0");

@@ -14,6 +14,8 @@ import { PaymentsModule } from './payments/payments.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { OrdersModule } from './orders/orders.module';
+import { ChatModule } from './chat/chat.module';
+import { MessageModule } from './message/message.module';
 import mongoose from 'mongoose';
 
 
@@ -34,7 +36,7 @@ import mongoose from 'mongoose';
       isGlobal: true
     }),
     UsersModule, 
-    AuthModule, DatabaseModule,  RolesModule, FlowersModule, DeliveryModule, PaymentsModule, ReviewsModule, NotificationsModule, OrdersModule
+    AuthModule, DatabaseModule,  RolesModule, FlowersModule, DeliveryModule, PaymentsModule, ReviewsModule, NotificationsModule, OrdersModule, ChatModule, MessageModule
   ],
   controllers: [AppController],
   providers: [AppService],
