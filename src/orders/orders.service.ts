@@ -66,29 +66,42 @@ export class OrdersService {
     if (!order) {
       throw new Error('Đơn hàng không tồn tại.');
     }
-  
-    // Cập nhật số lượng hoa và tổng tiền nếu cần
+
+    const flower = await this.flowerModel.findById(order.flowerId).exec();
+    if (!flower) {
+      throw new Error('Hoa không tồn tại.');
+    }
+
+    // Nếu cập nhật số lượng hoa
     if (updateOrderDto.quantity) {
-      const flower = await this.flowerModel.findById(order.flowerId).exec();
+      const quantityDifference = updateOrderDto.quantity - order.quantity;
+
+      // Kiểm tra xem số lượng hoa có đủ để cập nhật hay không
+      if (flower.quantity < quantityDifference) {
+        throw new Error('Không đủ số lượng hoa để cập nhật đơn hàng.');
+      }
+
+      // Cập nhật số lượng và tổng tiền
+      flower.quantity -= quantityDifference; // Cập nhật số lượng hoa
       order.quantity = updateOrderDto.quantity;
       order.totalPrice = flower.price * updateOrderDto.quantity;
     }
-  
+
     // Cập nhật trạng thái đơn hàng
     if (updateOrderDto.status) {
       order.status = updateOrderDto.status;
     }
 
-  
     await order.save();
+    await flower.save();
 
-     // Tạo thông báo cho người mua
-     const message = `Đơn hàng của bạn đang được: ${updateOrderDto.status}`;
-     await this.notificationsService.createNotification(order.buyerId.toString(), message);
- 
-     // Gửi thông báo qua WebSocket
-     await this.notificationsGateway.sendNotification(order.buyerId.toString(), message);
- 
+    // Tạo thông báo cho người mua
+    const message = `Đơn hàng của bạn đang được: ${order.status}`;
+    await this.notificationsService.createNotification(order.buyerId.toString(), message);
+
+    // Gửi thông báo qua WebSocket
+    await this.notificationsGateway.sendNotification(order.buyerId.toString(), message);
+
     return order;
   }
 
