@@ -16,7 +16,7 @@ export class UpdateFlowerDto {
   @IsNumber()
   @IsNotEmpty()
   @Type(() => Number)
-  quantity: number; // Số lượng hoa
+  freshness: number;
 
   @IsNumber()
   @IsNotEmpty()
@@ -33,6 +33,15 @@ export class UpdateFlowerDto {
   @IsString()
   @IsNotEmpty()
   condition: string; // Tình trạng hoa
+
+  @IsString()
+  @IsNotEmpty()
+  unitType: string; // Tình trạng hoa
+
+  @IsNumber()
+  @IsNotEmpty()
+  @Type(() => Number)
+  flowersPerUnit: number; // Số lượng hoa trong chậu
 
   @IsString()
   @IsOptional()

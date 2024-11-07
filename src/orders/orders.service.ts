@@ -23,10 +23,7 @@ export class OrdersService {
   async create(createOrderDto: CreateOrderDto) {
     const {buyerId, flowerId, quantity} = createOrderDto;
     const flower = await this.flowerModel.findById(flowerId).exec();
-    if (!flower || flower.quantity < quantity) {
-      throw new Error('Không đủ số lượng hoa để đặt hàng.');
-    }
-  
+ 
     
     const totalPrice = flower.price * quantity;
   
@@ -40,7 +37,6 @@ export class OrdersService {
     });
   
     await order.save();
-    flower.quantity -= quantity; // Cập nhật số lượng còn lại
     await flower.save();
     
 
@@ -66,42 +62,35 @@ export class OrdersService {
     if (!order) {
       throw new Error('Đơn hàng không tồn tại.');
     }
-
+  
     const flower = await this.flowerModel.findById(order.flowerId).exec();
     if (!flower) {
       throw new Error('Hoa không tồn tại.');
     }
-
+  
     // Nếu cập nhật số lượng hoa
     if (updateOrderDto.quantity) {
       const quantityDifference = updateOrderDto.quantity - order.quantity;
 
-      // Kiểm tra xem số lượng hoa có đủ để cập nhật hay không
-      if (flower.quantity < quantityDifference) {
-        throw new Error('Không đủ số lượng hoa để cập nhật đơn hàng.');
-      }
-
-      // Cập nhật số lượng và tổng tiền
-      flower.quantity -= quantityDifference; // Cập nhật số lượng hoa
       order.quantity = updateOrderDto.quantity;
       order.totalPrice = flower.price * updateOrderDto.quantity;
     }
-
+  
     // Cập nhật trạng thái đơn hàng
     if (updateOrderDto.status) {
       order.status = updateOrderDto.status;
     }
-
-    await order.save();
-    await flower.save();
-
+  
+    await order.save(); // Lưu thay đổi của đơn hàng
+    await flower.save(); // Lưu thay đổi của hoa
+  
     // Tạo thông báo cho người mua
     const message = `Đơn hàng của bạn đang được: ${order.status}`;
     await this.notificationsService.createNotification(order.buyerId.toString(), message);
-
+  
     // Gửi thông báo qua WebSocket
     await this.notificationsGateway.sendNotification(order.buyerId.toString(), message);
-
+  
     return order;
   }
 

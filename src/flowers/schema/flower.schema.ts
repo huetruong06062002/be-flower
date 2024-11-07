@@ -12,7 +12,7 @@ export class Flower {
   type: string;
 
   @Prop({ required: true })
-  quantity: number;
+  freshness: number; // Đếm ngược thời gian héo, có thể tính bằng số ngày còn lại
 
   @Prop({ required: true })
   price: number;
@@ -22,6 +22,12 @@ export class Flower {
 
   @Prop()
   description: string;
+
+  @Prop({ required: true })
+  unitType: string; // Đơn vị bán, ví dụ: 'chậu' hoặc 'bó'
+
+  @Prop({ required: true })
+  flowersPerUnit: number; // Số lượng bông hoa trong mỗi chậu hoặc bó
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   sellerId: mongoose.Schema.Types.ObjectId;

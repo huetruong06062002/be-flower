@@ -129,10 +129,12 @@ export class FlowersService {
     // Cập nhật các thông tin khác từ flowerDto
     existingFlower.name = flowerDto.name || existingFlower.name;
     existingFlower.type = flowerDto.type || existingFlower.type;
-    existingFlower.quantity = flowerDto.quantity || existingFlower.quantity;
+    existingFlower.freshness = flowerDto.freshness || existingFlower.freshness;
     existingFlower.price = flowerDto.price || existingFlower.price;
     existingFlower.condition = flowerDto.condition || existingFlower.condition;
     existingFlower.description = flowerDto.description || existingFlower.description;
+    existingFlower.unitType = flowerDto.unitType || existingFlower.unitType;
+    existingFlower.flowersPerUnit = flowerDto.flowersPerUnit || existingFlower.flowersPerUnit;
     existingFlower.mediumRating = mediumRating;
 
     // Cập nhật reviewId nếu có
