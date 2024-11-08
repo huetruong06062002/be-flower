@@ -52,26 +52,34 @@ export class OrdersService {
     return order;
   }
 
-  async findAll(filter: any = {}) {
-    const orders = await this.orderModel.find(filter).populate('buyerId flowerId').exec();
+  async getOrderByBuyerId(buyerId: string) {
+    try {
+      // Tìm tất cả đơn hàng của buyerId và populate thông tin buyerId và flowerId
+      const orders = await this.orderModel
+        .find({ buyerId })
+        .populate('buyerId flowerId')
+        .exec();
 
-    let totalOrderPrice = 0;
+      let totalOrderPrice = 0;
 
-  orders.forEach(order => {
-    // Kiểm tra nếu `flowerId` đã được populate
-    if (order.flowerId && typeof order.flowerId === 'object' && 'price' in order.flowerId) {
-      // Cộng giá của từng order vào tổng giá
-      //@ts-ignore
-      order.totalPrice = order.flowerId.price;
-      totalOrderPrice += order.totalPrice;
+      // Tính tổng giá trị đơn hàng
+      orders.forEach(order => {
+        //@ts-ignore
+        if (order.flowerId && order.flowerId.price) {
+        //@ts-ignore
+          totalOrderPrice += order.flowerId.price;
+        }
+      });
+
+      // Trả về kết quả, bao gồm danh sách đơn hàng và tổng giá trị đơn hàng
+      return {
+        buyerId,
+        orders,
+        totalOrderPrice,
+      };
+    } catch (error) {
+      throw new Error(`Error fetching orders: ${error.message}`);
     }
-  });
-
-    // Trả về danh sách đơn hàng và tổng giá
-    return {
-      ...orders,
-      totalOrderPrice
-    };
   }
 
   async findOne(orderId: string) {

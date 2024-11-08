@@ -2,7 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Order } from './schema/order.schema';
 
 
 
@@ -16,9 +17,13 @@ export class OrdersController {
     return this.ordersService.create(createOrderDto);
   }
 
-  @Get()
-  findAll(@Query() filter: any) {
-    return this.ordersService.findAll(filter);
+  @Get('getOrderByBuyerId')
+  @ApiOperation({ summary: 'Lấy đơn hàng theo buyerId và tính tổng giá trị đơn hàng' })
+  @ApiQuery({ name: 'buyerId', required: true, type: String, description: 'ID của Buyer' }) 
+  @ApiResponse({ status: 200, description: 'Danh sách đơn hàng của Buyer và tổng giá trị đơn hàng', type: [Order] })
+  @ApiResponse({ status: 500, description: 'Lỗi trong quá trình lấy dữ liệu' })
+  async getOrderByBuyerId(@Query('buyerId') buyerId: string) {
+    return this.ordersService.getOrderByBuyerId(buyerId);
   }
 
   @Get(':id')
