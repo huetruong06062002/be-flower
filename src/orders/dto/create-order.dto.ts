@@ -10,9 +10,5 @@ export class CreateOrderDto {
   @IsString()
   flowerId: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  @Type(() => Number) 
-  quantity: number; // Số lượng hoa
 }
 

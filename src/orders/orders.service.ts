@@ -14,43 +14,64 @@ export class OrdersService {
     @InjectModel(Order.name) private orderModel: SoftDeleteModel<OrderDocument>,
     @InjectModel(Flower.name) private flowerModel: SoftDeleteModel<FlowerDocument>,
     private readonly notificationsGateway: NotificationsGateway, // Inject NotificationsGateway
-    private readonly notificationsService: NotificationsService, 
+    private readonly notificationsService: NotificationsService,
 
-   
 
-  ) {}
+
+  ) { }
 
   async create(createOrderDto: CreateOrderDto) {
-    const {buyerId, flowerId, quantity} = createOrderDto;
+    const { buyerId, flowerId } = createOrderDto;
     const flower = await this.flowerModel.findById(flowerId).exec();
- 
-    
-    const totalPrice = flower.price * quantity;
-  
+    if (!flower) {
+      throw new Error('Không tìm thấy thông tin hoa.');
+    }
+
+    let totalPrice;
+
+    totalPrice = flower.price;
+
     const order = new this.orderModel({
       buyerId,
       flowerId,
-      quantity,
       totalPrice,
       orderDate: new Date(),
       status: 'Đang xử lý',
     });
-  
+
     await order.save();
     await flower.save();
-    
 
-      // Tạo thông báo cho người mua
-      const message = `Đơn hàng của bạn đang được tạo với tổng tiền là: ${totalPrice}`;
-      await this.notificationsService.createNotification(order.buyerId.toString(), message);
-  
-      // Gửi thông báo qua WebSocket
-      await this.notificationsGateway.sendNotification(order.buyerId.toString(), message);
+
+    // Tạo thông báo cho người mua
+    const message = `Đơn hàng của bạn đang được tạo với tổng tiền là: ${totalPrice}`;
+    await this.notificationsService.createNotification(order.buyerId.toString(), message);
+
+    // Gửi thông báo qua WebSocket
+    await this.notificationsGateway.sendNotification(order.buyerId.toString(), message);
     return order;
   }
 
   async findAll(filter: any = {}) {
-    return await this.orderModel.find(filter).populate('buyerId flowerId').exec();
+    const orders = await this.orderModel.find(filter).populate('buyerId flowerId').exec();
+
+    let totalOrderPrice = 0;
+
+  orders.forEach(order => {
+    // Kiểm tra nếu `flowerId` đã được populate
+    if (order.flowerId && typeof order.flowerId === 'object' && 'price' in order.flowerId) {
+      // Cộng giá của từng order vào tổng giá
+      //@ts-ignore
+      order.totalPrice = order.flowerId.price;
+      totalOrderPrice += order.totalPrice;
+    }
+  });
+
+    // Trả về danh sách đơn hàng và tổng giá
+    return {
+      ...orders,
+      totalOrderPrice
+    };
   }
 
   async findOne(orderId: string) {
@@ -62,35 +83,27 @@ export class OrdersService {
     if (!order) {
       throw new Error('Đơn hàng không tồn tại.');
     }
-  
+
     const flower = await this.flowerModel.findById(order.flowerId).exec();
     if (!flower) {
       throw new Error('Hoa không tồn tại.');
     }
-  
-    // Nếu cập nhật số lượng hoa
-    if (updateOrderDto.quantity) {
-      const quantityDifference = updateOrderDto.quantity - order.quantity;
 
-      order.quantity = updateOrderDto.quantity;
-      order.totalPrice = flower.price * updateOrderDto.quantity;
-    }
-  
     // Cập nhật trạng thái đơn hàng
     if (updateOrderDto.status) {
       order.status = updateOrderDto.status;
     }
-  
+
     await order.save(); // Lưu thay đổi của đơn hàng
     await flower.save(); // Lưu thay đổi của hoa
-  
+
     // Tạo thông báo cho người mua
     const message = `Đơn hàng của bạn đang được: ${order.status}`;
     await this.notificationsService.createNotification(order.buyerId.toString(), message);
-  
+
     // Gửi thông báo qua WebSocket
     await this.notificationsGateway.sendNotification(order.buyerId.toString(), message);
-  
+
     return order;
   }
 
@@ -101,5 +114,5 @@ export class OrdersService {
     }
     return order;
   }
-  
+
 }

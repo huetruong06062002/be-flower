@@ -12,9 +12,6 @@ export class Order {
   flowerId: mongoose.Schema.Types.ObjectId;
 
   @Prop({ required: true })
-  quantity: number;
-
-  @Prop({ required: true })
   totalPrice: number;
 
   @Prop({ required: true , default: Date.now })
